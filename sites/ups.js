@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 
 const scrape = async (trackingNumber) => {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     defaultViewport: null,
   });
 
