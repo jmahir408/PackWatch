@@ -4,7 +4,7 @@ const { Client, Intents, Channel } = require("discord.js");
 const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES",  "GUILD_MEMBERS"] });
 const token = process.env.BOT_TOKEN;
 
-const settings = require("./settings.json");
+const settings = require("./config/settings.json");
 const ups = require('./sites/ups.js')
 
 client.once("ready", () => {
