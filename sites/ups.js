@@ -20,16 +20,38 @@ const scrape = async (trackingNumber) => {
 
   await page.goto(url);
   const ETA = "#st_App_PkgStsTimeDayMonthNum";
-  await page.waitForSelector(ETA);
-  const eta = await page.$eval(ETA, (el) => el.innerText);
+  const DELIVERED = "#st_App_PkgStsMonthNum";
+  let eta;
+  let delivered;
+
+  if ((await page.$(ETA)) !== null) {
+    await page.waitForSelector(ETA);
+    eta = await page.$eval(ETA, (el) => el.innerText);
+    console.log("in eta");
+  } else {
+    await page.waitForSelector(DELIVERED);
+    delivered = await page.$eval(DELIVERED, (el) => el.innerText);
+    console.log("in delivered");
+  }
 
   //array with all info
-  const status = [eta];
+  const status = [eta, delivered];
+  let holder = [];
+
   await page.close();
   await browser.close();
-  return status;
+  
+  for (let i = 0; i < status.length; i++) {
+    if (status[i] != undefined) {
+      holder[i] = status[i];
+      console.log(holder[i]);
+    } else if (holder.length == 0) {
+      holder[0] = "No information found";
+    }
+  }
+  return holder;
 };
 
 module.exports = {
-  scrape: scrape
+  scrape: scrape,
 };
