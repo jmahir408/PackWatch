@@ -1,8 +1,12 @@
 require("dotenv").config();
+
 const { Client, Intents, Channel } = require("discord.js");
-const token = process.env.BOT_TOKEN;
 const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES",  "GUILD_MEMBERS"] });
+const token = process.env.BOT_TOKEN;
+
 const settings = require("./settings.json");
+const ups = require('./sites/ups.js')
+
 client.once("ready", () => {
   console.log("Ready!");
 });
@@ -17,12 +21,20 @@ client.on('message', async(message) => {
   }
 });
 
-client.on("ready", async () => {
-  //Log Bot's username and the amount of servers its in to console
-  console.log(`${client.user.username} is online on ${client.guilds.cache.size} servers!`);
+client.on('message', async(message) => {
+  if (message.content.startsWith(settings.prefix + "ups")) {
+    let trackingNumber = message.content.split(" ")[1];
+    message.reply("Fetching your package's Estimated Time of Arrival...");
+    let result = await ups.scrape(trackingNumber);
+    result.toString().split("\n").forEach(line => {
+      message.reply("ETA: " + line);
+    });
+  }
+});
 
-  //Set the Presence of the bot user
-  client.user.setActivity("My Code", {type: "PLAYING"});
+client.on("ready", async () => {
+  console.log(`${client.user.username} is online on ${client.guilds.cache.size} servers!`);
+  client.user.setActivity("Watching Packages!", {type: "PLAYING"});
 });
 
 client.login(token);
