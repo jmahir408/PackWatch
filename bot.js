@@ -24,12 +24,19 @@ client.on('message', async(message) => {
 client.on('message', async(message) => {
   if (message.content.startsWith(settings.prefix + "ups")) {
     let trackingNumber = message.content.split(" ")[1];
-    message.reply("Fetching your package's Estimated Time of Arrival...");
-    let result = await ups.scrape(trackingNumber);
-    result.toString().split("\n").forEach(line => {
-      message.reply("ETA: " + line);
-    });
-  }
+    message.reply("Fetching package info...");
+    let status = await ups.scrape(trackingNumber);
+    if (status[0] == "No information found") {
+      message.reply("No information found");
+    } else if (status[0] != undefined && status[1] == undefined) {
+      status[0].toString().split("\n").forEach(line => {
+        message.reply("ETA: " + line);
+      });
+    } else if (status[0] == undefined && status[1] != undefined) {
+      status[1].toString().split("\n").forEach(line => {
+        message.reply("Delivered on: " + line);
+      });
+  }};
 });
 
 client.on("ready", async () => {

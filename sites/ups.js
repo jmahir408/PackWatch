@@ -45,8 +45,9 @@ const scrape = async (trackingNumber) => {
     if (status[i] != undefined) {
       holder[i] = status[i];
       console.log(holder[i]);
-    } else if (holder.length == 0) {
-      holder[0] = "No information found";
+      if (holder.length == 0) {
+        holder[0] = "No information found";
+      }
     }
   }
   return holder;
