@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 
 const scrape = async (trackingNumber) => {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
   });
 
@@ -27,15 +27,15 @@ const scrape = async (trackingNumber) => {
   if ((await page.$(ETA)) !== null) {
     await page.waitForSelector(ETA);
     eta = await page.$eval(ETA, (el) => el.innerText);
-    console.log("in eta");
-  } else {
+  } else if ((await page.$(DELIVERED)) !== null){
     await page.waitForSelector(DELIVERED);
     delivered = await page.$eval(DELIVERED, (el) => el.innerText);
-    console.log("in delivered");
   }
 
   //array with all info
   const status = [eta, delivered];
+
+  //array with actual defined info
   let holder = [];
 
   await page.close();
