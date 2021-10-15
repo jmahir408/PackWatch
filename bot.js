@@ -1,11 +1,28 @@
 require("dotenv").config();
 
-const { Client, Intents, Channel } = require("discord.js");
+const { Client, Intents, Channel, MessageEmbed } = require("discord.js");
 const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES",  "GUILD_MEMBERS"] });
 const token = process.env.BOT_TOKEN;
 
 const settings = require("./config/settings.json");
 const ups = require('./sites/ups.js')
+const exampleEmbed = new MessageEmbed()
+	.setColor('#0099ff')
+	.setTitle('Some title')
+	.setURL('https://discord.js.org/')
+	.setAuthor('Some name', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
+	.setDescription('Some description here')
+	.setThumbnail('https://i.imgur.com/AfFp7pu.png')
+	.addFields(
+		{ name: 'Regular field title', value: 'Some value here' },
+		{ name: '\u200B', value: '\u200B' },
+		{ name: 'Inline field title', value: 'Some value here', inline: true },
+		{ name: 'Inline field title', value: 'Some value here', inline: true },
+	)
+	.addField('Inline field title', 'Some value here', true)
+	.setImage('https://i.imgur.com/AfFp7pu.png')
+	.setTimestamp()
+	.setFooter('Some footer text here', 'https://i.imgur.com/AfFp7pu.png');
 
 client.once("ready", () => {
   console.log("Ready!");
@@ -18,6 +35,12 @@ client.on("ready", () => {
 client.on('message', async(message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
     message.reply('pong');
+  }
+});
+
+client.on('message', async(message) => {
+  if (message.content.startsWith(settings.prefix + "embed")) {
+    message.reply({ embeds: [exampleEmbed] });
   }
 });
 
