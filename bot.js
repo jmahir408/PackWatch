@@ -8,21 +8,18 @@ const settings = require("./config/settings.json");
 const ups = require('./sites/ups.js')
 const exampleEmbed = new MessageEmbed()
 	.setColor('#0099ff')
-	.setTitle('Some title')
+  .setTitle('Insert user created package Name')
+  //Insert UPS Tracking Page link
 	.setURL('https://discord.js.org/')
-	.setAuthor('Some name', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
-	.setDescription('Some description here')
-	.setThumbnail('https://i.imgur.com/AfFp7pu.png')
+	.setAuthor('PackWatch', 'https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg', 'https://discord.js.org')
+	.setDescription('Insert Tracking ID')
+	.setThumbnail('https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg')
 	.addFields(
-		{ name: 'Regular field title', value: 'Some value here' },
-		{ name: '\u200B', value: '\u200B' },
-		{ name: 'Inline field title', value: 'Some value here', inline: true },
-		{ name: 'Inline field title', value: 'Some value here', inline: true },
+		{ name: 'Tracking Status', value: 'Insert status here' },
 	)
-	.addField('Inline field title', 'Some value here', true)
-	.setImage('https://i.imgur.com/AfFp7pu.png')
+	// .setImage('https://i.imgur.com/AfFp7pu.png')
 	.setTimestamp()
-	.setFooter('Some footer text here', 'https://i.imgur.com/AfFp7pu.png');
+	.setFooter('Made by Guru and Mahir', 'https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg');
 
 client.once("ready", () => {
   console.log("Ready!");
