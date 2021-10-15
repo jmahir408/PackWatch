@@ -30,7 +30,7 @@ createInvalidPackageEmbed = (url, trackingNumber) => {
   embed.setURL(url);
   embed.setColor("#ff1100");
   embed.addFields(
-    { name: "Requested tracking number", value: trackingNumber },
+    { name: "Requested Tracking Number", value: trackingNumber },
     { name: "Tracking Status", value: "Invalid tracking id!" }
   );
   return embed;
@@ -44,7 +44,7 @@ createEtaPackageEmbed = (url, trackingNumber, status) => {
       embed.setURL(url);
       embed.setColor("#FFFF00");
       embed.addFields(
-        { name: "Requested tracking number", value: trackingNumber },
+        { name: "Requested Tracking Number", value: trackingNumber },
         { name: "Tracking Status", value: `ETA: ${line}` }
       );
     });
@@ -58,7 +58,7 @@ createDeliveredPackageEmbed = (url, trackingNumber, status) => {
       embed.setURL(url);
       embed.setColor("#00ff00");
       embed.addFields(
-        { name: "Requested tracking number", value: trackingNumber },
+        { name: "Requested Tracking Number", value: trackingNumber },
         { name: "Tracking Status", value: `Delivered on: ${line}` }
       );
     });
