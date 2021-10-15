@@ -36,6 +36,7 @@ const minimal_args = [
   "--use-gl=swiftshader",
   "--use-mock-keychain",
 ];
+
 const scrape = async (trackingNumber) => {
   const browser = await puppeteer.launch({
     headless: true,
