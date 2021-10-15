@@ -26,7 +26,9 @@ client.on('message', async(message) => {
     let trackingNumber = message.content.split(" ")[1];
     message.reply("Fetching package info...");
     let status = await ups.scrape(trackingNumber);
-    if (status[0] == "No information found") {
+    if (status == "Invalid tracking id!") {
+      message.reply(status);
+    } else if (status[0] == "No information found") {
       message.reply("No information found");
     } else if (status[0] != undefined && status[1] == undefined) {
       status[0].toString().split("\n").forEach(line => {
