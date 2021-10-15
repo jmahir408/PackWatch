@@ -6,13 +6,15 @@ const token = process.env.BOT_TOKEN;
 
 const settings = require("./config/settings.json");
 const ups = require('./sites/ups.js')
-const exampleEmbed = new MessageEmbed()
+
+// const embed = require('./embed.js');
+const embed = new MessageEmbed()
 	.setColor('#0099ff')
   .setTitle('Insert user created package Name')
   //Insert UPS Tracking Page link
 	.setURL('https://discord.js.org/')
 	.setAuthor('PackWatch', 'https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg', 'https://discord.js.org')
-	.setDescription('Insert Tracking ID')
+	.setDescription(trackingNumber)
 	.setThumbnail('https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg')
 	.addFields(
 		{ name: 'Tracking Status', value: 'Insert status here' },
@@ -37,7 +39,7 @@ client.on('message', async(message) => {
 
 client.on('message', async(message) => {
   if (message.content.startsWith(settings.prefix + "embed")) {
-    message.reply({ embeds: [exampleEmbed] });
+    message.reply({ embeds: [embed.embed] });
   }
 });
 
