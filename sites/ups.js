@@ -98,6 +98,7 @@ const scrape = async (trackingNumber) => {
         holder[i] = status[i];
         console.log(holder[i]);
         if (holder.length == 0) {
+          //if no VALID (non undefined info is found)
           holder[0] = "No information found";
         }
       }
