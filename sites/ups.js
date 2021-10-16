@@ -68,9 +68,8 @@ const scrape = async (trackingNumber) => {
     invalid_number = await page.$eval(INVALID_NUMBER, (el) => el.innerText);
   } catch (e) {
     invalid_number = null;
-    console.log("Tracking id assumed to be valid. Skipping invalid selector.")
+    // console.log("Tracking id assumed to be valid. Skipping invalid selector.")
   }
-  console.log(invalid_number);
   if (invalid_number == "Please provide a tracking number." && invalid_number != null) {
     const invalid = "Invalid tracking id!";
     await page.close();
@@ -97,9 +96,9 @@ const scrape = async (trackingNumber) => {
     for (let i = 0; i < status.length; i++) {
       if (status[i] != undefined) {
         holder[i] = status[i];
-        console.log(holder[i]);
+        // console.log(holder[i]);
         if (holder.length == 0) {
-          //if no VALID (non undefined info is found)
+          //if no VALID info is found (no non undefined info is found)
           holder[0] = "No information found";
         }
       }
