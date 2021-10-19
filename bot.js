@@ -1,14 +1,29 @@
 require("dotenv").config();
-
 const { Client, Intents, Channel, MessageEmbed } = require("discord.js");
 const client = new Client({
   intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"],
 });
 const token = process.env.BOT_TOKEN;
 
+const mongoose = require("mongoose");
+const mongoURL = process.env.MONGO_URL;
+
 const settings = require("./config/settings");
 const ups = require("./sites/ups");
 require('./embeds/upsEmbed');
+const Package = require("./models/package");
+
+//connecting to mongoDB
+  mongoose.connect(mongoURL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Database Connected!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 client.once("ready", () => {
   console.log("Ready!");
@@ -17,6 +32,8 @@ client.once("ready", () => {
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
+// To manually add a user to the database in case our database doesn't have brand new locations
+// const User = require("./User");
 
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
