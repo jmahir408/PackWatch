@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    trackingID: { type: String, required: true },
-    name: { type: String, required: true}
+  discordUser: { type: String, required: true },
+  packages: { type: Array, required: true},
+  objectName: { type: String, required: true },
+  trackingID: { type: String, required: true }
   });
 
-const Package = mongoose.model('package', userSchema);
+const Package = mongoose.model('ups', userSchema);
 
 module.exports = Package;

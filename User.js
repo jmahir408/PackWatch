@@ -6,7 +6,7 @@ async function createUser() {
     try {
         const newUser = await User.create({
             trackingID: "WORDS",
-            name: "names"
+            alias: "names"
         });
     } catch (err) { 
         console.log(err);

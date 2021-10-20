@@ -33,11 +33,27 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 // To manually add a user to the database in case our database doesn't have brand new locations
-// const User = require("./User");
+//  const User = require("./User");
+
+function createPackage(trackingID, objectName,) {
+      const newUser = Package.create({
+          trackingID: trackingID,
+        objectName: objectName,
+      });
+}
+
+
+//this works (adds to database)
+//  let trackingID = 'resaiheiajklsd';
+//  let objectName = "alias";
+//  createPackage(trackingID, alias);
+
 
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
     message.reply("pong");
+    //get username+discriminator
+    console.log(message.author.tag)
   }
 });
 
