@@ -57,20 +57,43 @@ const scrape = async (trackingNumber) => {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
   );
 
+  await page.setRequestInterception(true);
+  page.on("request", (req) => {
+    if (
+      req.resourceType() == "stylesheet" ||
+      req.resourceType() == "font" ||
+      req.resourceType() == "image"
+    ) {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
+
   await page.goto(url);
+
+  //selectors
   const ETA = "#st_App_PkgStsTimeDayMonthNum";
   const DELIVERED = "#st_App_PkgStsMonthNum";
   const INVALID_NUMBER = "#stApp_lblInfoNotice";
+  const CHECK_LATER = "#st_App_chkLaterForEstDel";
+
+  //variables for actual info
   let eta;
   let delivered;
   let invalid_number;
+  let check_later;
+
   try {
     invalid_number = await page.$eval(INVALID_NUMBER, (el) => el.innerText);
   } catch (e) {
     invalid_number = null;
     // console.log("Tracking id assumed to be valid. Skipping invalid selector.")
   }
-  if (invalid_number == "Please provide a tracking number." && invalid_number != null) {
+  if (
+    invalid_number == "Please provide a tracking number." &&
+    invalid_number != null
+  ) {
     const invalid = "Invalid tracking id!";
     await page.close();
     await browser.close();
@@ -82,10 +105,13 @@ const scrape = async (trackingNumber) => {
     } else if ((await page.$(DELIVERED)) !== null) {
       await page.waitForSelector(DELIVERED);
       delivered = await page.$eval(DELIVERED, (el) => el.innerText);
+    } else if ((await page.$(CHECK_LATER)) !== null) {
+      await page.waitForSelector(CHECK_LATER);
+      check_later = await page.$eval(CHECK_LATER, (el) => el.innerText);
     }
 
     //array with all info
-    const status = [eta, delivered];
+    const status = [eta, delivered, check_later];
 
     //array with actual defined info
     let holder = [];
@@ -96,7 +122,7 @@ const scrape = async (trackingNumber) => {
     for (let i = 0; i < status.length; i++) {
       if (status[i] != undefined) {
         holder[i] = status[i];
-        // console.log(holder[i]);
+        // console.log(holder[i])
         if (holder.length == 0) {
           //if no VALID info is found (no non undefined info is found)
           holder[0] = "No information found";

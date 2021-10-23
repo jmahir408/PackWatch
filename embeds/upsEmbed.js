@@ -57,8 +57,24 @@ createInvalidPackageEmbed = (url, trackingNumber) => {
 	return embed;
   };
 
+  createCheckBackLaterEmbed = (url, trackingNumber, status) => {
+	status[2]
+	  .toString()
+	  .split("\n")
+	  .forEach((line) => {
+		embed.setURL(url);
+		embed.setColor("#FFA500");
+		embed.addFields(
+		  { name: "Requested Tracking Number", value: trackingNumber },
+		  { name: "Tracking Status", value: line }
+		);
+	  });
+	return embed;
+  };
+
 module.exports = {
 	createInvalidPackageEmbed,
 	createEtaPackageEmbed,
-	createDeliveredPackageEmbed
+	createDeliveredPackageEmbed,
+	createCheckBackLaterEmbed
 };

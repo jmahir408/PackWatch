@@ -69,6 +69,10 @@ client.on("message", async (message) => {
       let embed = createInvalidPackageEmbed(url, trackingNumber);
       message.reply({ embeds: [embed] });
       embed.fields = [];
+    } else if (status[2] == "Check back tomorrow for an updated delivery date." && status[0] == undefined && status[1] == undefined) {
+      let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
+      message.reply({ embeds: [embed] })
+      embed.fields = [];
     } else if (status[0] == "No information found") {
       message.reply("No information found");
     } else if (status[0] != undefined && status[1] == undefined) {
