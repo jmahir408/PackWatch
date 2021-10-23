@@ -1,6 +1,7 @@
 
 const { Client, Intents, Channel, MessageEmbed } = require("discord.js");
 
+//base embed variable with some constant stuff
 let embed = new MessageEmbed()
   .setTitle("UPS - userObjectName")
   .setAuthor(
@@ -17,6 +18,7 @@ let embed = new MessageEmbed()
     "https://static.vecteezy.com/system/resources/previews/000/350/131/original/vector-package-icon.jpg"
   );
 
+//embed functions that change base design of embed by adding URL, color, fields
 createInvalidPackageEmbed = (url, trackingNumber) => {
 	embed.setURL(url);
 	embed.setColor("#ff1100");
@@ -72,6 +74,7 @@ createInvalidPackageEmbed = (url, trackingNumber) => {
 	return embed;
   };
 
+//export embed functions for use in bot file
 module.exports = {
 	createInvalidPackageEmbed,
 	createEtaPackageEmbed,
