@@ -11,7 +11,7 @@ const mongoURL = process.env.MONGO_URL;
 const settings = require("./config/settings");
 const ups = require("./sites/ups");
 require("./embeds/upsEmbed");
-const Package = require("./models/package");
+const upsDB = require("./models/ups");
 
 //connecting to mongoDB
 mongoose
@@ -26,6 +26,49 @@ mongoose
     console.log(err);
   });
 
+const createUser = async (message) => {
+  try {
+    const user = await upsDB.findOne({ id: message.author.id });
+    if (user) {
+      // console.log("User exists");
+    } else {
+      // console.log("User does not exist");
+      await upsDB.create({
+        id: message.author.id,
+        username: message.author.username,
+        discriminator: message.author.discriminator,
+        tag: message.author.tag,
+        avatar: message.author.avatar,
+        avatarURL: message.author.avatarURL(),
+        authorCreatedAt: message.author.createdAt.toLocaleString()
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const addPackage = async (message, trackingNumber, item) => {
+  await upsDB.findOneAndUpdate(
+    { id: message.author.id },
+    {
+      $push: {
+        packages: [{ trackingNumber: trackingNumber , item: item, timestamp: message.createdAt.toLocaleString() }],
+      },
+    }
+  )
+}
+
+const getPackage = async (message, trackingNumber, item) => {
+  await upsDB.findOne(
+    { id: message.author.id },
+    {
+      q
+
+    }
+  )
+}
+
 client.once("ready", () => {
   console.log("Ready!");
 });
@@ -34,24 +77,11 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-//  const User = require("./User");
-function createPackage(trackingID, objectName) {
-  const newUser = Package.create({
-    trackingID: trackingID,
-    objectName: objectName,
-  });
-}
-
-//this works (adds to database)
-//  let trackingID = 'resaiheiajklsd';
-//  let objectName = "alias";
-//  createPackage(trackingID, alias);
-
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
     message.reply("pong");
   }
-});    
+});
 
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "info")) {
@@ -66,37 +96,52 @@ client.on("message", async (message) => {
       .addField("Avatar Hash", message.author.avatar)
       .addField("Avatar URL", message.author.avatarURL())
       .addField("Message sent at", message.createdAt.toLocaleString())
-     .addField("Account Created At", message.author.createdAt.toLocaleString());
-    message.channel.send({embeds: [embed]});
+      .addField("Account Created At", message.author.createdAt.toLocaleString());
+    message.channel.send({ embeds: [embed] });
   }
 });
 
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ups")) {
+    createUser(message);
+    if (message.content.includes('add')) {
+      let trackingNumber = message.content.split(" ")[2];
+      let item = message.content.split(" ")[3];
+      
+      addPackage(message, trackingNumber, item);
+      message.reply("Package Added to Database.");
+    }
+    else if (message.content.includes('get')){
+      let trackingNumber = message.content.split(" ")[2];
+      let item = message.content.split(" ")[3];
+      
+    }
+    else {
     let trackingNumber = message.content.split(" ")[1];
     let url =
       "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
     url += trackingNumber;
     message.reply("Fetching package info...");
     let status = await ups.scrape(trackingNumber);
-    if (status == "Invalid tracking id!") {
-      let embed = createInvalidPackageEmbed(url, trackingNumber);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[2] == "Check back tomorrow for an updated delivery date." && status[0] == undefined &&status[1] == undefined) {
-      let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == "No information found") {
-      message.reply("No information found");
-    } else if (status[0] != undefined && status[1] == undefined) {
-      let embed = createEtaPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == undefined && status[1] != undefined) {
-      let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
+      if (status == "Invalid tracking id!") {
+        let embed = createInvalidPackageEmbed(url, trackingNumber);
+        message.reply({ embeds: [embed] });
+        embed.fields = [];
+      } else if (status[2] == "Check back tomorrow for an updated delivery date." && status[0] == undefined && status[1] == undefined) {
+        let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
+        message.reply({ embeds: [embed] });
+        embed.fields = [];
+      } else if (status[0] == "No information found") {
+        message.reply("No information found");
+      } else if (status[0] != undefined && status[1] == undefined) {
+        let embed = createEtaPackageEmbed(url, trackingNumber, status);
+        message.reply({ embeds: [embed] });
+        embed.fields = [];
+      } else if (status[0] == undefined && status[1] != undefined) {
+        let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
+        message.reply({ embeds: [embed] });
+        embed.fields = [];
+      }
     }
   }
 });

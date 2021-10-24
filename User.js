@@ -1,6 +1,6 @@
 //Manually creating a user option
 
-const User = require("./models/package");
+const User = require("./models/ups");
 
 async function createUser() {
     try {
