@@ -40,28 +40,45 @@ const createUser = async (message) => {
         tag: message.author.tag,
         avatar: message.author.avatar,
         avatarURL: message.author.avatarURL(),
-        authorCreatedAt: message.author.createdAt.toLocaleString()
+        authorCreatedAt: message.author.createdAt.toLocaleString(),
       });
     }
   } catch (err) {
     console.log(err);
   }
-}
+};
 
 const addPackage = async (message, trackingNumber, item) => {
   await upsDB.findOneAndUpdate(
     { id: message.author.id },
     {
       $push: {
-        packages: [{ trackingNumber: trackingNumber , item: item, timestamp: message.createdAt.toLocaleString() }],
+        packages: [
+          {
+            trackingNumber: trackingNumber,
+            item: item,
+            timestamp: message.createdAt.toLocaleString(),
+          },
+        ],
       },
     }
-  )
-}
+  );
+};
 
-const getPackage = async (message, trackingNumber, item) => {
-  return upsDB.findOne({});
-}
+//get package by name in packages array
+const getPackage = async (message, name) => {
+  try {
+    const user = await upsDB.findOne({ id: message.author.id });
+    if (user) {
+      const package = user.packages.find((p) => p.item === name);
+      if (package) {
+        return package;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 client.once("ready", () => {
   console.log("Ready!");
@@ -90,7 +107,10 @@ client.on("message", async (message) => {
       .addField("Avatar Hash", message.author.avatar)
       .addField("Avatar URL", message.author.avatarURL())
       .addField("Message sent at", message.createdAt.toLocaleString())
-      .addField("Account Created At", message.author.createdAt.toLocaleString());
+      .addField(
+        "Account Created At",
+        message.author.createdAt.toLocaleString()
+      );
     message.channel.send({ embeds: [embed] });
   }
 });
@@ -98,38 +118,39 @@ client.on("message", async (message) => {
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ups")) {
     createUser(message);
-    if (message.content.includes('add')) {
+    if (message.content.includes("add")) {
       let trackingNumber = message.content.split(" ")[2];
       let item = message.content.split(" ")[3];
-      
       addPackage(message, trackingNumber, item);
       message.reply("Package Added to Database.");
-    }
-    else if (message.content.includes('get')){
+    } else if (message.content.includes("get")) {
       let trackingNumber = message.content.split(" ")[2];
       let item = message.content.split(" ")[3];
-      // console.log(getPackage(message, trackingNumber, item));
-      // console.log(upsDB.findOne({ id: message.author.id }));
-      upsDB.findOne({ id: message.author.id }, { packages: { $projection: {item : item} } },(error, data) => {
-        if (error) {
-          console.log(error)
-        } else {
-          console.log(data)
-        }
-      })
-    }
-    else {
-    let trackingNumber = message.content.split(" ")[1];
-    let url =
-      "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
-    url += trackingNumber;
-    message.reply("Fetching package info...");
-    let status = await ups.scrape(trackingNumber);
+      const package = await getPackage(message, trackingNumber, item)
+      const embed = new MessageEmbed()
+      .setTitle("Package Information")
+      .setColor("#0099ff")
+      .setThumbnail(message.author.avatarURL())
+      .addField("Tracking Number", package.trackingNumber)
+      .addField("Item", package.item)
+      .addField("Added to DB on", package.timestamp);
+      message.channel.send({ embeds: [embed] });
+    } else {
+      let trackingNumber = message.content.split(" ")[1];
+      let url =
+        "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
+      url += trackingNumber;
+      message.reply("Fetching package info...");
+      let status = await ups.scrape(trackingNumber);
       if (status == "Invalid tracking id!") {
         let embed = createInvalidPackageEmbed(url, trackingNumber);
         message.reply({ embeds: [embed] });
         embed.fields = [];
-      } else if (status[2] == "Check back tomorrow for an updated delivery date." && status[0] == undefined && status[1] == undefined) {
+      } else if (
+        status[2] == "Check back tomorrow for an updated delivery date." &&
+        status[0] == undefined &&
+        status[1] == undefined
+      ) {
         let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
         message.reply({ embeds: [embed] });
         embed.fields = [];
@@ -152,7 +173,7 @@ client.on("ready", async () => {
   console.log(
     `${client.user.username} is online on ${client.guilds.cache.size} servers!`
   );
-  client.user.setActivity('Packages!', { type: 'WATCHING' });
+  client.user.setActivity("Packages!", { type: "WATCHING" });
 });
 
 client.login(token);
