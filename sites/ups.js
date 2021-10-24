@@ -40,7 +40,7 @@ const minimal_args = [
 //scrape function that gets called in bot file
 const scrape = async (trackingNumber) => {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
     args: minimal_args,
     userDataDir: "../cache/",

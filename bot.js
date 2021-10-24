@@ -50,8 +50,24 @@ function createPackage(trackingID, objectName) {
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
     message.reply("pong");
-    //get username+discriminator
-    console.log(message.author.tag);
+  }
+});    
+
+client.on("message", async (message) => {
+  if (message.content.startsWith(settings.prefix + "info")) {
+    const embed = new MessageEmbed()
+      .setTitle("User Information")
+      .setColor("#0099ff")
+      .setThumbnail(message.author.avatarURL())
+      .addField("User ID", message.author.id)
+      .addField("Username", message.author.username)
+      .addField("Discriminator", message.author.discriminator)
+      .addField("Tag", message.author.tag)
+      .addField("Avatar Hash", message.author.avatar)
+      .addField("Avatar URL", message.author.avatarURL())
+      .addField("Message sent at", message.createdAt.toLocaleString())
+     .addField("Account Created At", message.author.createdAt.toLocaleString());
+    message.channel.send({embeds: [embed]});
   }
 });
 
