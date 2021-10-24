@@ -60,13 +60,7 @@ const addPackage = async (message, trackingNumber, item) => {
 }
 
 const getPackage = async (message, trackingNumber, item) => {
-  await upsDB.findOne(
-    { id: message.author.id },
-    {
-      q
-
-    }
-  )
+  return upsDB.findOne({});
 }
 
 client.once("ready", () => {
@@ -114,7 +108,15 @@ client.on("message", async (message) => {
     else if (message.content.includes('get')){
       let trackingNumber = message.content.split(" ")[2];
       let item = message.content.split(" ")[3];
-      
+      // console.log(getPackage(message, trackingNumber, item));
+      // console.log(upsDB.findOne({ id: message.author.id }));
+      upsDB.findOne({ id: message.author.id }, { packages: { $projection: {item : item} } },(error, data) => {
+        if (error) {
+          console.log(error)
+        } else {
+          console.log(data)
+        }
+      })
     }
     else {
     let trackingNumber = message.content.split(" ")[1];
