@@ -198,8 +198,8 @@ client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ups")) {
     createUser(message);
     if (message.content.includes("add")) {
-      let trackingNumber = message.content.split(" ")[2];
-      let item = message.content.split(" ")[3];
+      let trackingNumber = message.content.split(" ")[3];
+      let item = message.content.split(" ")[2];
       addPackage(message, trackingNumber, item);
       message.reply("Package Added to Database.");
     } else if (message.content.includes("track")) {
