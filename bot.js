@@ -65,6 +65,19 @@ const addPackage = async (message, trackingNumber, item) => {
   );
 };
 
+const deletePackage = async (message, item) => {
+  await upsDB.findOneAndUpdate(
+    { id: message.author.id },
+    {
+      $pull: {
+        packages: {
+          item: item
+        }
+      }
+    }
+  );
+};
+
 //get package by name in packages array
 const getPackage = async (message, item) => {
   try {
@@ -191,6 +204,10 @@ client.on("message", async (message) => {
       message.reply("Package Added to Database.");
     } else if (message.content.includes("track")) {
       handleCustomCommand(message);
+    } else if (message.content.includes("delete")) {
+      let item = message.content.split(" ")[2];
+      deletePackage(message, item);
+      message.reply("Package Deleted from Database");
     } else if (message.content.includes("info")) {
       let item = message.content.split(" ")[2];
       const package = await getPackage(message, item)
