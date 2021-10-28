@@ -208,6 +208,10 @@ client.on("message", async (message) => {
       let item = message.content.split(" ")[2];
       deletePackage(message, item);
       message.reply("Package Deleted from Database");
+    } else if (message.content.includes("list")) {
+      //list function for all ups packages
+      let item = message.content.split(" ")[2];
+      
     } else if (message.content.includes("info")) {
       let item = message.content.split(" ")[2];
       const package = await getPackage(message, item)
