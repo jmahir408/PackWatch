@@ -20,12 +20,12 @@ mongoose
 module.exports = class UpsDB {
   createUser = async (message) => {
     try {
-      const user = await upsDB.findOne({ id: message.author.id });
+      const user = await upsModel.findOne({ id: message.author.id });
       if (user) {
         // console.log("User exists");
       } else {
         // console.log("User does not exist");
-        await upsDB.create({
+        await upsModel.create({
           id: message.author.id,
           username: message.author.username,
           discriminator: message.author.discriminator,
@@ -41,7 +41,7 @@ module.exports = class UpsDB {
   };
 
   addPackage = async (message, trackingNumber, item) => {
-    await upsDB.findOneAndUpdate(
+    await upsModel.findOneAndUpdate(
       { id: message.author.id },
       {
         $push: {
@@ -58,7 +58,7 @@ module.exports = class UpsDB {
   };
 
   deletePackage = async (message, item) => {
-    await upsDB.findOneAndUpdate(
+    await upsModel.findOneAndUpdate(
       { id: message.author.id },
       {
         $pull: {
@@ -73,7 +73,7 @@ module.exports = class UpsDB {
   //get package by name in packages array
   getPackage = async (message, item) => {
     try {
-      const user = await upsDB.findOne({ id: message.author.id });
+      const user = await upsModel.findOne({ id: message.author.id });
       if (user) {
         const s = user.packages.find((p) => p.item === item);
         if (s) {
@@ -87,7 +87,7 @@ module.exports = class UpsDB {
 
   listPackages = async (message) => {
     try {
-      const user = await upsDB.findOne({ id: message.author.id });
+      const user = await upsModel.findOne({ id: message.author.id });
       if (user) {
         const packages = user.packages;
         if (packages.length > 0) {

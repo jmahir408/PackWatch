@@ -14,8 +14,3 @@ const userSchema = new mongoose.Schema({
 const upsModel = mongoose.model('ups', userSchema);
 
 module.exports = upsModel;
-
-// !ups save 233294298472 box1
-
-// !ups get box1
-     
