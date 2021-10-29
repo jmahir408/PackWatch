@@ -10,8 +10,12 @@ const mongoURL = process.env.MONGO_URL;
 
 const settings = require("./config/settings");
 const ups = require("./sites/ups");
+
+//get embed functions
 require("./embeds/upsEmbed");
-const upsDB = require("./models/ups");
+
+const UpsDB = require("./database/UpsDB");
+const upsDB = new UpsDB();
 
 //connecting to mongoDB
 mongoose
@@ -20,109 +24,11 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Database Connected!");
+    console.log("Main Database Connected!");
   })
   .catch((err) => {
     console.log(err);
   });
-
-const createUser = async (message) => {
-  try {
-    const user = await upsDB.findOne({ id: message.author.id });
-    if (user) {
-      // console.log("User exists");
-    } else {
-      // console.log("User does not exist");
-      await upsDB.create({
-        id: message.author.id,
-        username: message.author.username,
-        discriminator: message.author.discriminator,
-        tag: message.author.tag,
-        avatar: message.author.avatar,
-        avatarURL: message.author.avatarURL(),
-        authorCreatedAt: message.author.createdAt.toLocaleString(),
-      });
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const addPackage = async (message, trackingNumber, item) => {
-  await upsDB.findOneAndUpdate(
-    { id: message.author.id },
-    {
-      $push: {
-        packages: [
-          {
-            trackingNumber: trackingNumber,
-            item: item,
-            timestamp: message.createdAt.toLocaleString(),
-          },
-        ],
-      },
-    }
-  );
-};
-
-const deletePackage = async (message, item) => {
-  await upsDB.findOneAndUpdate(
-    { id: message.author.id },
-    {
-      $pull: {
-        packages: {
-          item: item,
-        },
-      },
-    }
-  );
-};
-
-//get package by name in packages array
-const getPackage = async (message, item) => {
-  try {
-    const user = await upsDB.findOne({ id: message.author.id });
-    if (user) {
-      const package = user.packages.find((p) => p.item === item);
-      if (package) {
-        return package;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const listPackages = async (message) => {
-  try {
-    const user = await upsDB.findOne({ id: message.author.id });
-    if (user) {
-      const packages = user.packages;
-      if (packages.length > 0) {
-        const embed = new MessageEmbed()
-          .setTitle("Packages")
-          .setColor("#0099ff")
-          .setThumbnail(message.author.avatarURL());
-        packages.forEach((p) => {
-          embed.addField(
-            `${p.item}`,
-            `Tracking Number: ${p.trackingNumber}\nSaved on: ${p.timestamp}`
-          );
-        });
-        return embed;
-      } else {
-        const embed = new MessageEmbed()
-          .setTitle("Packages")
-          .setColor("#0099ff")
-          .setThumbnail(message.author.avatarURL())
-          .setDescription("You have no packages!");
-        return embed;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 const handleStandardCommand = async (message) => {
   let trackingNumber = message.content.split(" ")[1];
@@ -157,7 +63,7 @@ const handleStandardCommand = async (message) => {
 
 const handleCustomCommand = async (message) => {
   let item = message.content.split(" ")[2];
-  const package = await getPackage(message, item);
+  const package = await upsDB.getPackage(message, item);
   let trackingNumber = package.trackingNumber;
   let url = "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
   url += trackingNumber;
@@ -188,12 +94,14 @@ const handleCustomCommand = async (message) => {
   }
 };
 
+//replies with embed with all packages from listPackages function
 const handleListCommand = async (message) => {
-  const embed = await listPackages(message);
+  const embed = await upsDB.listPackages(message);
   message.reply({ embeds: [embed] });
   embed.fields = [];
 };
 
+//log
 client.once("ready", () => {
   console.log("Ready!");
 });
@@ -202,6 +110,7 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+//ping command
 client.on("message", async (message) => {
   if (message.content.startsWith(settings.prefix + "ping")) {
     message.reply("pong");
@@ -237,24 +146,24 @@ client.on("message", async (message) => {
   if(message.author.bot) return;
   if(message.channel.type === "dm") return;
   if (message.content.startsWith(settings.prefix + "ups")) {
-    createUser(message);
+    upsDB.createUser(message);
     if (message.content.includes("add")) {
       let trackingNumber = message.content.split(" ")[3];
       let item = message.content.split(" ")[2];
-      addPackage(message, trackingNumber, item);
+      upsDB.addPackage(message, trackingNumber, item);
       message.reply("Package Added to Database.");
     } else if (message.content.includes("track")) {
       handleCustomCommand(message);
     } else if (message.content.includes("delete")) {
       let item = message.content.split(" ")[2];
-      deletePackage(message, item);
+      upsDB.deletePackage(message, item);
       message.reply("Package Deleted from Database");
     } else if (message.content.includes("list")) {
       //just need to pass in message for message.author.id, no other command needed
       handleListCommand(message);
     } else if (message.content.includes("info")) {
       let item = message.content.split(" ")[2];
-      const package = await getPackage(message, item);
+      const package = await upsDB.getPackage(message, item);
       const embed = new MessageEmbed()
         .setTitle("Package Information")
         .setColor("#0099ff")
