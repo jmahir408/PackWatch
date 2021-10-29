@@ -65,6 +65,7 @@ const handleCustomCommand = async (message) => {
   let item = message.content.split(" ")[2];
   const package = await upsDB.getPackage(message, item);
   let trackingNumber = package.trackingNumber;
+  let timestamp = package.timestamp;
   let url = "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
   url += trackingNumber;
   message.reply("Fetching package info...");
@@ -88,7 +89,7 @@ const handleCustomCommand = async (message) => {
     message.reply({ embeds: [embed] });
     embed.fields = [];
   } else if (status[0] == undefined && status[1] != undefined) {
-    let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
+    let embed = createDeliveredPackageEmbed(url, trackingNumber, status, item, timestamp);
     message.reply({ embeds: [embed] });
     embed.fields = [];
   }
@@ -153,7 +154,18 @@ client.on("message", async (message) => {
       upsDB.addPackage(message, trackingNumber, item);
       message.reply("Package Added to Database.");
     } else if (message.content.includes("track")) {
+      //have track do info also 
       handleCustomCommand(message);
+      // let item = message.content.split(" ")[2];
+      // const package = await upsDB.getPackage(message, item);
+      // const embed = new MessageEmbed()
+      //   .setTitle("Package Information")
+      //   .setColor("#0099ff")
+      //   .setThumbnail(message.author.avatarURL())
+      //   .addField("Tracking Number", package.trackingNumber)
+      //   .addField("Item", package.item)
+      //   .addField("Added to DB on", package.timestamp);
+      // message.channel.send({ embeds: [embed] });
     } else if (message.content.includes("delete")) {
       let item = message.content.split(" ")[2];
       upsDB.deletePackage(message, item);

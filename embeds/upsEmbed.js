@@ -33,27 +33,31 @@ createInvalidPackageEmbed = (url, trackingNumber) => {
 	status[0]
 	  .toString()
 	  .split("\n")
-	  .forEach((line) => {
+		.forEach((line) => {
 		embed.setURL(url);
 		embed.setColor("#FFFF00");
 		embed.addFields(
 		  { name: "Requested Tracking Number", value: trackingNumber },
-		  { name: "Tracking Status", value: `ETA: ${line}` }
+		  { name: "Tracking Status", value: `ETA: ${line}` },
 		);
 	  });
 	return embed;
   };
 
-  createDeliveredPackageEmbed = (url, trackingNumber, status) => {
+  createDeliveredPackageEmbed = (url, trackingNumber, status, item, timestamp) => {
 	status[1]
 	  .toString()
 	  .split("\n")
-	  .forEach((line) => {
+		.forEach((line) => {
+			embed.setTitle("Package Information")
+			embed.setColor("#0099ff")
 		embed.setURL(url);
 		embed.setColor("#00ff00");
 		embed.addFields(
 		  { name: "Requested Tracking Number", value: trackingNumber },
-		  { name: "Tracking Status", value: `Delivered on: ${line}` }
+			{ name: "Tracking Status", value: `Delivered on: ${line}` },
+			{ name: "Item", value: item },
+			 {name: "Added to DB on", value: timestamp}
 		);
 	  });
 	return embed;
