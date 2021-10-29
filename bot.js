@@ -71,9 +71,9 @@ const deletePackage = async (message, item) => {
     {
       $pull: {
         packages: {
-          item: item
-        }
-      }
+          item: item,
+        },
+      },
     }
   );
 };
@@ -93,70 +93,105 @@ const getPackage = async (message, item) => {
   }
 };
 
-const handleStandardCommand = async (message) => {
-    let trackingNumber = message.content.split(" ")[1];
-    let url =
-      "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
-    url += trackingNumber;
-    message.reply("Fetching package info...");
-    let status = await ups.scrape(trackingNumber);
-    if (status == "Invalid tracking id!") {
-      let embed = createInvalidPackageEmbed(url, trackingNumber);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (
-      status[2] == "Check back tomorrow for an updated delivery date." &&
-      status[0] == undefined &&
-      status[1] == undefined
-    ) {
-      let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == "No information found") {
-      message.reply("No information found");
-    } else if (status[0] != undefined && status[1] == undefined) {
-      let embed = createEtaPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == undefined && status[1] != undefined) {
-      let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
+const listPackages = async (message) => {
+  try {
+    const user = await upsDB.findOne({ id: message.author.id });
+    if (user) {
+      const packages = user.packages;
+      if (packages.length > 0) {
+        const embed = new MessageEmbed()
+          .setTitle("Packages")
+          .setColor("#0099ff")
+          .setThumbnail(message.author.avatarURL());
+        packages.forEach((p) => {
+          embed.addField(
+            `${p.item}`,
+            `Tracking Number: ${p.trackingNumber}\nSaved on: ${p.timestamp}`
+          );
+        });
+        return embed;
+      } else {
+        const embed = new MessageEmbed()
+          .setTitle("Packages")
+          .setColor("#0099ff")
+          .setThumbnail(message.author.avatarURL())
+          .setDescription("You have no packages!");
+        return embed;
+      }
     }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const handleStandardCommand = async (message) => {
+  let trackingNumber = message.content.split(" ")[1];
+  let url = "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
+  url += trackingNumber;
+  message.reply("Fetching package info...");
+  let status = await ups.scrape(trackingNumber);
+  if (status == "Invalid tracking id!") {
+    let embed = createInvalidPackageEmbed(url, trackingNumber);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (
+    status[2] == "Check back tomorrow for an updated delivery date." &&
+    status[0] == undefined &&
+    status[1] == undefined
+  ) {
+    let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (status[0] == "No information found") {
+    message.reply("No information found");
+  } else if (status[0] != undefined && status[1] == undefined) {
+    let embed = createEtaPackageEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (status[0] == undefined && status[1] != undefined) {
+    let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  }
 };
 
 const handleCustomCommand = async (message) => {
   let item = message.content.split(" ")[2];
-  const package = await getPackage(message, item)
+  const package = await getPackage(message, item);
   let trackingNumber = package.trackingNumber;
-  let url =
-      "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
-    url += trackingNumber;
-    message.reply("Fetching package info...");
-    let status = await ups.scrape(trackingNumber);
-    if (status == "Invalid tracking id!") {
-      let embed = createInvalidPackageEmbed(url, trackingNumber);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (
-      status[2] == "Check back tomorrow for an updated delivery date." &&
-      status[0] == undefined &&
-      status[1] == undefined
-    ) {
-      let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == "No information found") {
-      message.reply("No information found");
-    } else if (status[0] != undefined && status[1] == undefined) {
-      let embed = createEtaPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    } else if (status[0] == undefined && status[1] != undefined) {
-      let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
-      message.reply({ embeds: [embed] });
-      embed.fields = [];
-    }
+  let url = "https://www.ups.com/WebTracking?loc=en_US&Requester=DAN&tracknum=";
+  url += trackingNumber;
+  message.reply("Fetching package info...");
+  let status = await ups.scrape(trackingNumber);
+  if (status == "Invalid tracking id!") {
+    let embed = createInvalidPackageEmbed(url, trackingNumber);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (
+    status[2] == "Check back tomorrow for an updated delivery date." &&
+    status[0] == undefined &&
+    status[1] == undefined
+  ) {
+    let embed = createCheckBackLaterEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (status[0] == "No information found") {
+    message.reply("No information found");
+  } else if (status[0] != undefined && status[1] == undefined) {
+    let embed = createEtaPackageEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  } else if (status[0] == undefined && status[1] != undefined) {
+    let embed = createDeliveredPackageEmbed(url, trackingNumber, status);
+    message.reply({ embeds: [embed] });
+    embed.fields = [];
+  }
+};
+
+const handleListCommand = async (message) => {
+  const embed = await listPackages(message);
+  message.reply({ embeds: [embed] });
+  embed.fields = [];
 };
 
 client.once("ready", () => {
@@ -209,19 +244,18 @@ client.on("message", async (message) => {
       deletePackage(message, item);
       message.reply("Package Deleted from Database");
     } else if (message.content.includes("list")) {
-      //list function for all ups packages
-      let item = message.content.split(" ")[2];
-      
+      //just need to pass in message for message.author.id, no other command needed
+      handleListCommand(message);
     } else if (message.content.includes("info")) {
       let item = message.content.split(" ")[2];
-      const package = await getPackage(message, item)
+      const package = await getPackage(message, item);
       const embed = new MessageEmbed()
-      .setTitle("Package Information")
-      .setColor("#0099ff")
-      .setThumbnail(message.author.avatarURL())
-      .addField("Tracking Number", package.trackingNumber)
-      .addField("Item", package.item)
-      .addField("Added to DB on", package.timestamp);
+        .setTitle("Package Information")
+        .setColor("#0099ff")
+        .setThumbnail(message.author.avatarURL())
+        .addField("Tracking Number", package.trackingNumber)
+        .addField("Item", package.item)
+        .addField("Added to DB on", package.timestamp);
       message.channel.send({ embeds: [embed] });
     } else {
       handleStandardCommand(message);
