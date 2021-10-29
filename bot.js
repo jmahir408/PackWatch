@@ -208,7 +208,10 @@ client.on("message", async (message) => {
   }
 });
 
+//user information command
 client.on("message", async (message) => {
+  if(message.author.bot) return;
+  if(message.channel.type === "dm") return;
   if (message.content.startsWith(settings.prefix + "info")) {
     const embed = new MessageEmbed()
       .setTitle("User Information")
@@ -229,7 +232,10 @@ client.on("message", async (message) => {
   }
 });
 
+//main message event handler
 client.on("message", async (message) => {
+  if(message.author.bot) return;
+  if(message.channel.type === "dm") return;
   if (message.content.startsWith(settings.prefix + "ups")) {
     createUser(message);
     if (message.content.includes("add")) {
