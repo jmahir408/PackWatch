@@ -14,21 +14,8 @@ const ups = require("./sites/ups");
 //get embed functions
 require("./embeds/upsEmbed");
 
-const UpsDB = require("./database/UpsDB");
+const UpsDB = require("./database/Database");
 const upsDB = new UpsDB();
-
-//connecting to mongoDB
-mongoose
-  .connect(mongoURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Main Database Connected!");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
 
 const handleStandardCommand = async (message) => {
   let trackingNumber = message.content.split(" ")[1];
@@ -79,17 +66,17 @@ const handleCustomCommand = async (message) => {
     status[0] == undefined &&
     status[1] == undefined
   ) {
-    let embed = createCheckBackLaterEmbed(url, trackingNumber, status, item, timestamp);
+    let embed = createCustomCheckBackLaterEmbed(url, trackingNumber, status, item, timestamp);
     message.reply({ embeds: [embed] });
     embed.fields = [];
   } else if (status[0] == "No information found") {
     message.reply("No information found");
   } else if (status[0] != undefined && status[1] == undefined) {
-    let embed = createEtaPackageEmbed(url, trackingNumber, status, item, timestamp);
+    let embed = createCustomEtaPackageEmbed(url, trackingNumber, status, item, timestamp);
     message.reply({ embeds: [embed] });
     embed.fields = [];
   } else if (status[0] == undefined && status[1] != undefined) {
-    let embed = createDeliveredPackageEmbed(url, trackingNumber, status, item, timestamp);
+    let embed = createCustomDeliveredPackageEmbed(url, trackingNumber, status, item, timestamp);
     message.reply({ embeds: [embed] });
     embed.fields = [];
   }

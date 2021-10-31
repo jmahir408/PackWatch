@@ -1,8 +1,7 @@
 require("dotenv").config();
-
-const { MessageEmbed } = require("discord.js");
-const mongoose = require("mongoose");
 const mongoURL = process.env.MONGO_URL;
+const mongoose = require("mongoose");
+const { MessageEmbed } = require("discord.js");
 const upsModel = require("../models/ups");
 
 mongoose
